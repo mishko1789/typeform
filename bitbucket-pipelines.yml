@@ -1,0 +1,42 @@
+image: wagnerstephan/bitbucket-git-ftp:latest
+
+
+pipelines:
+    custom:
+        catchup-master:
+            - step:
+                name: Init deploy master
+                deployment: Production
+                caches:
+                    - node
+                script:
+                    - git reset --hard
+                    - git ftp catchup -u "$FTP_USER" -p "$FTP_PASS" ftp://$FTP_SERVER
+        catchup-test:
+            - step:
+                name: Init deploy test
+                deployment: Test
+                caches:
+                    - node
+                script:
+                    - git reset --hard
+                    - git ftp catchup -u "$FTP_TEST_USER" -p "$FTP_TEST_PASS" ftp://$FTP_TEST_SERVER
+    branches:
+        master:
+            - step:
+                name: Deploy master
+                deployment: Production
+                caches:
+                    - node
+                script:
+                    - git reset --hard
+                    - git ftp push -u "$FTP_USER" -p "$FTP_PASS" ftp://$FTP_SERVER
+        test:
+            - step:
+                name: Deploy test
+                deployment: Test
+                caches:
+                    - node
+                script:
+                    - git reset --hard
+                    - git ftp push -u "$FTP_TEST_USER" -p "$FTP_TEST_PASS" ftp://$FTP_TEST_SERVER
